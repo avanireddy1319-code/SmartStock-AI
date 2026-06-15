@@ -4,6 +4,8 @@ import plotly.express as px
 import sqlite3
 import hashlib
 
+from streamlit.cursor import Cursor
+
 # ==================================================
 # PAGE CONFIG
 # ==================================================
@@ -45,6 +47,7 @@ CREATE TABLE IF NOT EXISTS users(
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS inventory(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner TEXT,
     product_name TEXT,
     category TEXT,
     cost_price REAL,
@@ -97,11 +100,18 @@ def login_user(name, password):
 # ==================================================
 # INVENTORY FUNCTIONS
 # ==================================================
-
 def get_products():
-    return pd.read_sql(
-        "SELECT * FROM inventory",
-        conn
+
+    return pd.read_sql_query(
+        """
+        SELECT *
+        FROM inventory
+        WHERE owner = ?
+        """,
+        conn,
+        params=(
+            st.session_state.username,
+        )
     )
 
 def add_product(
@@ -112,9 +122,11 @@ def add_product(
     qty,
     supplier
 ):
+
     cursor.execute("""
     INSERT INTO inventory
     (
+    owner,
     product_name,
     category,
     cost_price,
@@ -122,9 +134,10 @@ def add_product(
     quantity,
     supplier
     )
-    VALUES (?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
     """,
     (
+        st.session_state.username,
         name,
         category,
         cost,
@@ -148,13 +161,16 @@ def update_stock(product_id, qty):
 
 def delete_product(product_id):
 
-    cursor.execute("""
-    DELETE FROM inventory
-    WHERE id=?
-    """,
-    (product_id,))
+    cursor.execute(
+        """
+        DELETE FROM inventory
+        WHERE id = ?
+        """,
+        (product_id,)
+    )
 
     conn.commit()
+    
 
 # ==================================================
 # SESSION STATE
@@ -165,7 +181,7 @@ if "logged_in" not in st.session_state:
 
 if "username" not in st.session_state:
     st.session_state.username = ""
-
+   
 # ==================================================
 # LOGIN / REGISTRATION PAGE
 # ==================================================
@@ -450,17 +466,21 @@ else:
                     st.success(
                         "Updated"
                     )
-
             with col2:
                 if st.button(
                     "Delete Product"
                 ):
+
                     delete_product(
-                        selected["id"]
+                        int(selected["id"])
                     )
+
                     st.success(
-                        "Deleted"
+                        f"{selected['product_name']} deleted successfully!"
                     )
+
+                    st.rerun()
+            
 
     # =============================================
     # SALES
