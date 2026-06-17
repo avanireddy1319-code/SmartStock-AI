@@ -4,8 +4,7 @@ import plotly.express as px
 import sqlite3
 import hashlib
 
-from streamlit.cursor import Cursor
-
+from smartstock_theme import inject_theme, hero
 # ==================================================
 # PAGE CONFIG
 # ==================================================
@@ -16,6 +15,7 @@ st.set_page_config(
     layout="wide"
 )
 
+inject_theme()
 # ==================================================
 # DATABASE CONNECTION
 # ==================================================
@@ -312,7 +312,11 @@ else:
 
     if page == "Dashboard":
 
-        st.title("📦 Inventory Dashboard")
+        hero(
+    "Inventory Dashboard",
+    "Monitor stock levels and business insights",
+    "📦"
+)
 
         df = get_products()
 
@@ -382,7 +386,11 @@ else:
 
     elif page == "Manage Products":
 
-        st.title("➕ Manage Products")
+        hero(
+    "Manage Products",
+    "Add, edit and control your inventory",
+    "📦"
+)
 
         with st.form("product_form"):
 
@@ -488,7 +496,11 @@ else:
 
     elif page == "Sales":
 
-        st.title("💰 Record Sale")
+        hero(
+    "Record Sale",
+    "Process transactions and update stock",
+    "💰"
+)
 
         df = get_products()
 
@@ -553,7 +565,11 @@ else:
 
     elif page == "Analytics":
 
-        st.title("📈 Analytics")
+        hero(
+    "Analytics",
+    "Visualize your inventory performance",
+    "📈"
+)
 
         df = get_products()
 
@@ -595,3 +611,5 @@ else:
                 "text/csv"
             )
             
+ 
+       
