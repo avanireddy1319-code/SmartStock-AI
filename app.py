@@ -352,7 +352,7 @@ else:
 
         c3.metric(
             "Inventory Value",
-            f"${inventory_value:,.2f}"
+            f"₹{inventory_value:,.2f}"
         )
 
         c4.metric(
